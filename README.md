@@ -1,2 +1,2 @@
-# penguinping
+# PenguinPing
 PenguinPing DDoS testing tool
