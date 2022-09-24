@@ -9,29 +9,38 @@ function configure(parser)
 	parser:argument("host", "Destination IP (IPv4 or IPv6).")
 	parser:option("-I --interface", "interface name"):default(0):convert(tonumber)
 	parser:option("-r --rate", "Transmit rate in Mbit/s."):default(10000):convert(tonumber)
+	parser:option("-c --count", "Packet count"):default(10000):convert(tonumber)
 	parser:option("-a --spoof", "Spoof source address (IPv4 or IPv6)."):default("10.0.0.1")
 	parser:option("-s --baseport", "TCP/UDP source port (default random)"):default(-1):convert(tonumber)
 	parser:option("-p --destport", "TCP/UDP destination port"):default(80):convert(tonumber)
-	parser:flag("-1 --icmp", "ICMP mode"):default(0)
-	parser:flag("-2 --udp", "UDP mode"):default(0)
+	parser:flag("-1 --icmp", "ICMP mode")
+	parser:flag("-2 --udp", "UDP mode")
 end
 
 function master(args)
 	local dev = device.config{port = args.interface}
+	local conf = {}
+	conf.count = args.count
+
 	dev:wait()
 	dev:getTxQueue(0):setRate(args.rate)
-  local proto = 6
+
 	if args.icmp then
-		proto = 1
+	  print ("ICMP mode on")
+		conf.proto = 1
 	elseif args.udp then
-		proto = 17
+   	print ("UDP mode on")
+		conf.proto = 17
+	else
+		print ("TCP mode on")
+		conf.proto = 6
 	end
 
-	mg.startTask("loadSlave", dev:getTxQueue(0), proto, args.spoof, args.host, args.baseport, args.destport)
+	mg.startTask("loadSlave", dev:getTxQueue(0), conf, args.spoof, args.host, args.baseport, args.destport)
 	mg.waitForTasks()
 end
 
-function loadSlave(queue, proto, minA, dest, baseport,  destport)
+function loadSlave(queue, conf, minA, dest, baseport,  destport)
 	--- parse and check ip addresses
 	local minIP, ipv4 = parseIPAddress(minA)
 	if minIP then
@@ -39,12 +48,21 @@ function loadSlave(queue, proto, minA, dest, baseport,  destport)
 	else
 		log:fatal("Invalid minIP: %s", minA)
 	end
+	log:info("Proto %s ", conf.proto)
 
+	if conf.proto == 1 then
+	  print ("ICMP mode get ICMP packet, not implemented yet")
+		do return end
+  elseif conf.proto == 17 then
+		print ("UDP mode get UDP packet, not implemented yet")
+		do return end
+  else
+		print ("TCP mode get TCP packet")
 	-- min TCP packet size for IPv6 is 74 bytes (+ CRC)
 	local packetLen = ipv4 and 60 or 74
 
 	-- continue normally
-	local mem = memory.createMemPool(function(buf)
+  local mem = memory.createMemPool(function(buf)
 		buf:getTcpPacket(ipv4):fill{
 			ethSrc = queue,
 			ethDst = "12:34:56:78:90",
@@ -58,7 +76,6 @@ function loadSlave(queue, proto, minA, dest, baseport,  destport)
 			pktLength = packetLen
 		}
 	end)
-
 
 	local bufs = mem:bufArray(128)
 	local counter = 0
@@ -84,12 +101,17 @@ function loadSlave(queue, proto, minA, dest, baseport,  destport)
 				buf:dump()
 				c = c + 1
 			end
+			if c == conf.count then
+				do return end
+			end
 		end
+
 		--offload checksums to NIC
 		bufs:offloadTcpChecksums(ipv4)
 
 		queue:send(bufs)
 		txStats:update()
+		end
 	end
 	txStats:finalize()
 end
