@@ -15,6 +15,16 @@ function configure(parser)
 	parser:option("-p --destport", "TCP/UDP destination port"):default(80):convert(tonumber)
 	parser:flag("-1 --icmp", "ICMP mode")
 	parser:flag("-2 --udp", "UDP mode")
+
+	parser:flag("-L --setack", "Set TCP ack")
+	parser:flag("-F --fin", "Set TCP FIN flag")
+	parser:flag("-S --syn", "Set TCP SYN flag")
+	parser:flag("-R --rst", "Set TCP RST flag")
+	parser:flag("-P --push", "Set TCP PUSH flag")
+	parser:flag("-A --ack", "Set TCP ACK flag")
+	parser:flag("-U --urg", "Set TCP URG flag")
+	parser:flag("-X --xmas", "Set TCP X unused flag (0x40)")
+	parser:flag("-Y --ymas", "Set TCP Y unused flag (0x80)")
 end
 
 function master(args)
@@ -26,15 +36,22 @@ function master(args)
 	dev:getTxQueue(0):setRate(args.rate)
 
 	if args.icmp then
- 	    print ("ICMP mode on")
 		conf.proto = 1
 	elseif args.udp then
-    	print ("UDP mode on")
 		conf.proto = 17
 	else
-		print ("TCP mode on")
+		-- TCP was default in Hping3
 		conf.proto = 6
 	end
+
+	if args.fin then conf.fin = 1 end
+	if args.syn then conf.syn = 1 end
+	if args.rst then conf.rst = 1 end
+	if args.push then conf.push = 1 end
+	if args.ack then conf.ack = 1 end
+	if args.urg then conf.urg = 1 end
+	if args.xmas then conf.xmas = 1 end
+	if args.ymas then conf.ymas = 1 end
 
 	mg.startTask("loadSlave", dev:getTxQueue(0), conf, args.spoof, args.host, args.baseport, args.destport)
 	mg.waitForTasks()
@@ -51,10 +68,12 @@ function loadSlave(queue, conf, minA, dest, baseport,  destport)
 	log:info("Proto %s ", conf.proto)
 
 	if conf.proto == 1 then
-	  print ("ICMP mode get ICMP packet")
+	  print ("ICMP mode get ICMP packet, not fully implemented yet")
 	-- continue normally
-	-- min TCP packet size for IPv6 is 74 bytes (+ CRC)
-	local packetLen = ipv4 and 60 or 74
+	-- min ICMP packet size 
+	-- IPv4 is 64 bytes - checked
+	-- IPv6 is 74 bytes (+ CRC) - not checked 
+	local packetLen = ipv4 and 64 or 74
 	  local mem = memory.createMemPool(function(buf)
 		buf:getIcmpPacket(ipv4):fill{
 			ethSrc = queue,
@@ -99,9 +118,11 @@ function loadSlave(queue, conf, minA, dest, baseport,  destport)
 	    end
 
   elseif conf.proto == 17 then
-		print ("UDP mode get UDP packet, not implemented yet")
+		print ("UDP mode get UDP packet, not fully implemented yet")
 	-- continue normally
-	-- min TCP packet size for IPv6 is 74 bytes (+ CRC)
+	-- min UDP packet size 
+	-- IPv4 is 64 bytes - not checked
+	-- IPv6 is 74 bytes (+ CRC) - not checked 
 	local packetLen = ipv4 and 60 or 74
 	local mem = memory.createMemPool(function(buf)
 		buf:getUdpPacket(ipv4):fill{
@@ -163,7 +184,12 @@ function loadSlave(queue, conf, minA, dest, baseport,  destport)
 			ethDst = "12:34:56:78:90",
 			ip4Dst = dest,
 			ip6Dst = dest,
-			tcpSyn = 1,
+			tcpFin = conf.fin,
+			tcpSyn = conf.syn,
+            tcpRst = conf.rst,
+            tcpPsh = conf.push,
+            tcpAck = conf.ack,
+            tcpUrg = conf.urg,
 			tcpSrc = baseport,
 			tcpDst = destport,
 			tcpSeqNumber = 1,
