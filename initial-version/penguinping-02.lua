@@ -153,7 +153,7 @@ function loadSlave(queue, conf, minA, dest, baseport,  destport)
 				pkt.udp:setSrcPort(math.random(65535))
 			end
 			-- dump first packets
-			if c < 300 then
+			if c < 3 then
 				buf:dump()
 				c = c + 1
 			end
