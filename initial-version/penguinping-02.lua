@@ -85,7 +85,6 @@ function loadSlave(queue, conf, minA, dest, baseport,  destport)
 	  end)
 
 	  local bufs = mem:bufArray(128)
-	  local counter = 0
 	  local c = 0
 
 	  local txStats = stats:newDevTxCounter(queue, "plain")
@@ -196,7 +195,6 @@ function loadSlave(queue, conf, minA, dest, baseport,  destport)
 	end)
 
 	local bufs = mem:bufArray(128)
-	local counter = 0
 	local c = 0
 
 	local txStats = stats:newDevTxCounter(queue, "plain")
