@@ -9,9 +9,9 @@ When connecting to the Internet we immediately receive traffic from unknown sour
 Networks are insecure, and often not as robust as we wish. There is a high risk that networks are vulnerable to one or more DDoS attack vectors, if not tested and verified. When setting up networks we often ignore the built-in features available, and we often have to select which features to enable on specific devices. The vendors tell us they can do everything in every box, but the truth is that attackers can often use more resources than we have available.
 
 ## PenguinPing is on Github
-PenguinPing is a simple Lua script currently running on top of MoonGen/libmoon. Both these can be found on Github:
+PenguinPing is a simple Lua script currently running on top of MoonGen/libmoon. All these can be found on Github:
 
-* (MoonGen)[https://github.com/emmericp/MoonGen] and (libmoon)[https://github.com/libmoon/libmoon] are the libraries on top of DPDK which are required to run PenguinPing.
 * PenguinPing - in development, this repository
-* (Presentations from TROOPERS22 and Hacktivity 2022 are to be found on Github as well
-* (DDoS Testing Your Infrastructure, including IPv6 SYN floods)[https://github.com/kramse/security-courses/tree/master/presentations/network/ddos-test-troopers22]
+* [MoonGen](https://github.com/emmericp/MoonGen) and [libmoon](https://github.com/libmoon/libmoon) are the libraries on top of DPDK which are required to run PenguinPing.
+* Presentations from TROOPERS22 and Hacktivity 2022 are to be found on Github as well
+[DDoS Testing Your Infrastructure, including IPv6 SYN floods](https://github.com/kramse/security-courses/tree/master/presentations/network/ddos-test-troopers22)
