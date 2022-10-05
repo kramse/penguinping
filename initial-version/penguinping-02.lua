@@ -227,6 +227,6 @@ function loadSlave(queue, conf, minA, dest, baseport,  destport)
 		queue:send(bufs)
 		txStats:update()
 		end
+		txStats:finalize()
 	end
-	txStats:finalize()
 end
