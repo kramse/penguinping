@@ -29,7 +29,7 @@ function master(args)
 	  print ("ICMP mode on")
 		conf.proto = 1
 	elseif args.udp then
-   	print ("UDP mode on")
+		print ("UDP mode on")
 		conf.proto = 17
 	else
 		print ("TCP mode on")
@@ -78,7 +78,6 @@ function loadSlave(queue, conf, minA, dest, baseport,  destport)
 	end)
 
 	local bufs = mem:bufArray(128)
-	local counter = 0
 	local c = 0
 
 	local txStats = stats:newDevTxCounter(queue, "plain")
@@ -89,7 +88,6 @@ function loadSlave(queue, conf, minA, dest, baseport,  destport)
 			local pkt = buf:getTcpPacket(ipv4)
 			if ipv4 then
 				pkt.ip4.src:set(minIP)
-				local sourceport
 			else
 				pkt.ip6.src:set(minIP)
 			end
