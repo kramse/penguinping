@@ -70,9 +70,9 @@ function loadSlave(queue, conf, minA, dest, baseport,  destport)
 	if conf.proto == 1 then
 	  print ("ICMP mode get ICMP packet, not fully implemented yet")
 	-- continue normally
-	-- min ICMP packet size 
+	-- min ICMP packet size
 	-- IPv4 is 64 bytes - checked
-	-- IPv6 is 74 bytes (+ CRC) - not checked 
+	-- IPv6 is 74 bytes (+ CRC) - not checked
 	local packetLen = ipv4 and 64 or 74
 	  local mem = memory.createMemPool(function(buf)
 		buf:getIcmpPacket(ipv4):fill{
@@ -120,9 +120,9 @@ function loadSlave(queue, conf, minA, dest, baseport,  destport)
   elseif conf.proto == 17 then
 		print ("UDP mode get UDP packet, not fully implemented yet")
 	-- continue normally
-	-- min UDP packet size 
+	-- min UDP packet size
 	-- IPv4 is 64 bytes - not checked
-	-- IPv6 is 74 bytes (+ CRC) - not checked 
+	-- IPv6 is 74 bytes (+ CRC) - not checked
 	local packetLen = ipv4 and 60 or 74
 	local mem = memory.createMemPool(function(buf)
 		buf:getUdpPacket(ipv4):fill{
@@ -219,7 +219,8 @@ function loadSlave(queue, conf, minA, dest, baseport,  destport)
 			end
 			-- dump first packets
 			if c < 1 then
-				buf:dump()
+				print ("Wireshark format Import from Hex Dump")
+				buf:dump(packetLen,io.stdout,true, true)
 				c = c + 1
 			end
 			if c == conf.count then
